@@ -45,8 +45,8 @@ jobs:
           context: ./backend
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/devops-backend:latest
-            ghcr.io/${{ github.repository_owner }}/devops-backend:${{ github.sha }}
+            ghcr.io/saicharan21/devops-backend:latest
+            ghcr.io/saicharan21/devops-backend:${{ github.sha }}
 
       # 4. Build & Push Frontend
       - name: Build & Push frontend
@@ -55,5 +55,5 @@ jobs:
           context: ./frontend
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/devops-frontend:latest
-            ghcr.io/${{ github.repository_owner }}/devops-frontend:${{ github.sha }}
+            ghcr.io/saicharan21/devops-frontend:latest
+            ghcr.io/saicharan21/devops-frontend:${{ github.sha }}
