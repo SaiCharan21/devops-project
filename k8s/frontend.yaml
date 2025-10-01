@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: devops-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: devops-frontend:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1                  # API version for Service objects
+kind: Service                   # We're creating a Service
+metadata:
+  name: frontend                # Service name = "frontend"
+  namespace: devops-demo        # Service will live in the "devops-demo" namespace
+spec:
+  selector:                     # Defines which Pods this Service targets
+    app: frontend               # Match Pods with label app=frontend (the frontend Pods)
+  ports:                        # List of ports that this Service will expose
+    - port: 80                  # Service listens on port 80 (inside cluster)
+      targetPort: 80            # Forward traffic to container's port 80 (NGINX)
+      # Means: client → Service:80 → Pod:80
+  type: NodePort                # Service type: accessible from outside the cluster
+                                # NodePort opens a random port (30000–32767) on each Node
+                                # You can reach it at http://<NodeIP>:<NodePort>
+

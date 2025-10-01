@@ -1,0 +1,42 @@
+backend:
+  image: ghcr.io/saicharan21/devops-backend
+  tag: "1.0"
+  port: 5000
+  serviceType: ClusterIP
+  replicaCount: 2
+  dbPassword: "changeme123" # will be base64-encoded automatically
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+frontend:
+  image: ghcr.io/saicharan21/devops-frontend
+  tag: "1.0"
+  port: 80
+  serviceType: NodePort # change to ClusterIP in prod
+  nodePort: 32002
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: frontend
+        - path: /api
+          pathType: Prefix
+          backend: backend

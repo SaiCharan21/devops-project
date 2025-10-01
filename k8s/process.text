@@ -1,0 +1,23 @@
+Frontend Pod
+------------
+- Runs your React/Vite app (served via NGINX).
+
+Frontend Service (NodePort)
+---------------------------
+- Exposes the frontend to your browser on `localhost:<nodeport>`.
+- Mainly for **external access** (your laptop → frontend Pod).
+
+Frontend Pod (inside the cluster)
+---------------------------------
+- When it needs to call the backend API, it does **not** use Pod IPs.
+- Instead, it calls the **backend Service (ClusterIP)**.
+
+Backend Service (ClusterIP)
+---------------------------
+- Provides a stable IP + DNS (e.g., `backend.devops-demo.svc.cluster.local`).
+- Routes traffic to whichever backend Pods match `app=backend`.
+
+Backend Pod
+-----------
+- Runs your Express/Node.js server on port `5000`.
+ƒ

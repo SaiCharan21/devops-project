@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile  # use prod Dockerfile (no nodemon)
+    image: devops-backend:prod
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+    restart: always
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile  # use prod Dockerfile (with Nginx)
+    image: devops-frontend:prod
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

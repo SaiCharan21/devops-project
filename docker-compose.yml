@@ -1,0 +1,35 @@
+# 👉 This file is a blueprint that:
+# Builds an image for frontend and backend.
+# Runs a separate container for each.
+# Connects them via a shared network so they can talk by name.
+# Exposes ports so you (the developer) can use them in your browser.
+# Use Docker Compose file format v3.8 (newer Compose versions ignore this but it's fine to keep)
+
+
+version: "3.8"
+
+services:
+  # Backend service (Express API)
+  backend:
+    build: ./backend          # Build image using Dockerfile inside ./backend folder
+    ports:
+      - "5000:5000"           # Map container port 5000 → host port 5000
+    container_name: devops-backend   # Name of the container (easier than random names)
+    networks:
+      - app-network           # Attach backend to shared network
+
+  # Frontend service (React + Vite, served by Nginx)
+  frontend:
+    build: ./frontend         # Build image using Dockerfile inside ./frontend folder
+    ports:
+      - "3000:80"           # Map container port 3000 → host port 3000
+    container_name: devops-frontend # Name of the container
+    depends_on:
+      - backend               # Ensure backend starts before frontend
+    networks:
+      - app-network           # Attach frontend to same shared network
+
+# Define a user-defined bridge network so services can talk to each other by name
+networks:
+  app-network:
+    driver: bridge

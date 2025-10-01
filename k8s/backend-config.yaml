@@ -1,0 +1,15 @@
+## Common things you put in ConfigMaps:
+  # Environment / Mode → NODE_ENV=production
+  # Feature Flags → FEATURE_X_ENABLED=true
+  # API Settings → API_URL=http://backend:5000/api, API_VERSION=v1
+  # App Defaults → CACHE_TTL=300, LOG_LEVEL=info
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: devops-demo
+data:
+  NODE_ENV: "production"
+  API_VERSION: "v1"
+  # add more non-secret config here (e.g., LOG_LEVEL: "info")

@@ -1,0 +1,67 @@
+# -------------------------------
+# Create a Namespace called "devops-demo"
+# Namespaces are like folders; they let you organize resources
+# Example: "dev", "test", "prod" environments
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-demo
+
+---
+# -------------------------------
+# Define a Deployment for the backend app
+# A Deployment manages Pods (creates, replaces, updates them if needed)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend                # Name of this Deployment
+  namespace: devops-demo       # Place it inside the devops-demo namespace
+spec:
+  replicas: 1                  # Run 1 Pod (scale this number up for more Pods)
+  selector:                    # Deployment uses this to find/manage its Pods
+    matchLabels:
+      app: backend             # It matches Pods with the label app=backend
+  template:                    # Pod "blueprint" (this defines how Pods look)
+    metadata:
+      labels:
+        app: backend           # Every Pod will get this label (key=value)
+    spec:
+      containers:              # List of containers in the Pod (here: just one)
+        - name: backend        # Name of the container inside the Pod
+          image: devops-backend:1.0       # Container image to use
+          imagePullPolicy: IfNotPresent   # Pull from registry only if not already cached
+          ports:
+            - containerPort: 5000         # Container listens on port 5000
+          env:                            # Environment variables for the container
+            - name: NODE_ENV
+              value: "production"         # Inside container: NODE_ENV=production
+
+---
+# -------------------------------
+# Define a Service to expose the backend Pods
+# Services give Pods a stable network identity (IP and DNS)
+# Without a Service, Pods' IPs keep changing whenever Pods restart
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend                # Name of the Service
+  namespace: devops-demo       # Put it in the same namespace as Deployment
+spec:
+  selector:                    # This Service will target Pods with this label
+    app: backend               # Connect to Pods labeled app=backend
+  ports:
+    - port: 5000               # Port exposed by the Service (what clients use)
+      targetPort: 5000         # Forward traffic to this port inside the Pod
+  type: ClusterIP              # Default type: internal only, accessible within cluster
+
+
+# Deployment: backend (replicas=1)
+#      |
+#      └── Pod: backend-7d9d9f8c8d-abcde
+#              └── Container: devops-backend:1.0
+#                      - NODE_ENV=production
+#                      - listens on port 5000
+
+# Service: backend (ClusterIP: 10.106.x.x, DNS: backend.devops-demo.svc.cluster.local)
+#      |
+#      └── Routes requests on port 5000 → Pod container port 5000

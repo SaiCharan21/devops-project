@@ -1,0 +1,49 @@
+name: CI - Build & Push Docker Images
+
+on:
+  push:
+    branches:
+      - main   # Run this workflow whenever you push to main
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write  # needed to push to GHCR
+      id-token: write
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Log in to GHCR
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Build & Push Backend
+      - name: Build & Push backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devops-backend:latest
+            ghcr.io/${{ github.repository_owner }}/devops-backend:${{ github.sha }}
+
+      # 4. Build & Push Frontend
+      - name: Build & Push frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devops-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/devops-frontend:${{ github.sha }}
