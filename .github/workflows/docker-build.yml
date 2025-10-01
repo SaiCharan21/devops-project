@@ -1,4 +1,4 @@
-name: CI - Build & Push Docker Image(s1)
+name: CI - Build & Push Docker Images
 
 on:
   push:
@@ -16,30 +16,44 @@ jobs:
       id-token: write
 
     steps:
+      # 1. Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🔍 Debug step: Verify PAT secret is available
+      - name: Debug - check GHCR_PAT
+        run: |
+          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
+            echo "❌ GHCR_PAT is NOT available!"
+            exit 1
+          else
+            echo "✅ GHCR_PAT secret is available."
+          fi
+
+      # 2. Log in to GHCR
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: saicharan21
+          username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
+      # 3. Build & Push Backend
       - name: Build & Push backend
         uses: docker/build-push-action@v4
         with:
           context: ./backend
           push: true
           tags: |
-            ghcr.io/saicharan21/devops-backend:latest
-            ghcr.io/saicharan21/devops-backend:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/devops-backend:latest
+            ghcr.io/${{ github.repository_owner }}/devops-backend:${{ github.sha }}
 
+      # 4. Build & Push Frontend
       - name: Build & Push frontend
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
           push: true
           tags: |
-            ghcr.io/saicharan21/devops-frontend:latest
-            ghcr.io/saicharan21/devops-frontend:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/devops-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/devops-frontend:${{ github.sha }}
