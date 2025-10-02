@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: backend
   annotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "5000"
-  prometheus.io/path: "/metrics"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.backend.port }}"
+    prometheus.io/path: "/metrics"
 spec:
   type: {{ .Values.backend.serviceType }}
   selector:
